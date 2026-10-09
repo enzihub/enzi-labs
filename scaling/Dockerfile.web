@@ -1,0 +1,23 @@
+FROM python:3.12-slim
+
+WORKDIR /usr/src/app
+
+# Install system dependencies if any
+# RUN apt-get update && apt-get install -y some-package
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the 'app' directory and other necessary files like config.py
+COPY ./app ./app
+
+# Set environment variables
+ENV FLASK_APP=app.main_app:app
+ENV FLASK_RUN_HOST=0.0.0.0
+ENV APP_ENV=development
+ENV PYTHONUNBUFFERED=1
+
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--workers", "2", "--bind", "0.0.0.0:5000", "app.main_app:app"]

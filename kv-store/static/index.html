@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-V Store Simulator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Key-Value Store Simulator</h1>
+
+    <div class="main-container">
+        <!-- Server Management & Ring Display -->
+        <div class="column" id="servers-column">
+            <h2>Server Management</h2>
+            <div class="input-group">
+                <input type="text" id="new-server-id" placeholder="New Server ID (e.g., serverX)">
+                <button id="add-server-btn">Add Server</button>
+            </div>
+            <h3>Physical Servers (<span id="physical-server-count">0</span>)</h3>
+            <ul id="physical-server-list">
+                <!-- Server items will be dynamically added here -->
+            </ul>
+            <hr>
+            <h3>Hash Ring (Virtual Nodes: <span id="virtual-node-count">0</span>)</h3>
+            <div id="hash-ring-visualization">
+                <!-- Simple list visualization -->
+                <ul id="hash-ring-list"></ul>
+            </div>
+        </div>
+
+        <!-- KV Operations -->
+        <div class="column" id="kv-ops-column">
+            <h2>Key-Value Operations</h2>
+            <div class="operation-group">
+                <h3>PUT Operation</h3>
+                <input type="text" id="put-key" placeholder="Key">
+                <input type="text" id="put-value" placeholder="Value">
+                <button id="put-btn">PUT</button>
+            </div>
+            <div class="operation-group">
+                <h3>GET Operation</h3>
+                <input type="text" id="get-key" placeholder="Key">
+                <button id="get-btn">GET</button>
+            </div>
+            <div id="kv-result" class="result-box">
+                <p>Result will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Data Storage Display -->
+    <h2>Individual Server Storage Details</h2>
+    <div id="server-data-display" class="server-data-container">
+        <!-- Data for each server will be shown here -->
+    </div>
+    
+    <!-- System Logs -->
+    <h2>System Logs/Messages</h2>
+    <div id="system-logs" class="result-box">
+        <p>No messages yet.</p>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

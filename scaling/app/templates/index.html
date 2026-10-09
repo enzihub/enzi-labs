@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scalable Notes App</title>
+    <!-- This will be served by our "CDN" route -->
+    <link rel="stylesheet" href="{{ cdn_url_prefix }}/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>My Notes - Demo</h1>
+        <div class="info-box">
+            {% if user_id %}
+            Logged in as: <strong>{{ username }} (User ID: {{ user_id }})</strong><br>
+            {% else %}
+            <strong>Not Logged In</strong><br>
+            {% endif %}
+            Data Center: <strong>{{ current_datacenter }}</strong> |
+            Web Server Port: <strong>{{ server_port }}</strong> |
+            DB Strategy: <strong>{{ db_strategy_used }}</strong>
+        </div>
+
+        {% if not user_id %}
+        <h2>Login</h2>
+        <form id="loginForm" class="login-form">
+            <label for="user_id_login">User ID (Enter a number, e.g., 1, 2, 3):</label>
+            <input type="number" id="user_id_login" name="user_id" required>
+            <label for="username_login">Username (Optional):</label>
+            <input type="text" id="username_login" name="username">
+            <button type="submit">Login</button>
+            <p class="error" id="loginError"></p>
+        </form>
+        {% else %}
+        <h2>Add New Note</h2>
+        <form id="addNoteForm">
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" rows="3" required></textarea>
+            <button type="submit">Add Note</button>
+            <p class="error" id="noteError"></p>
+        </form>
+
+        <form id="logoutForm" class="logout-form">
+            <button type="submit">Logout</button>
+        </form>
+
+        <h2>Your Notes:</h2>
+        <div id="notesList">
+            {% if notes %}
+            {% for note in notes %}
+            <div class="note">
+                <p>{{ note.content }}</p>
+                <small>ID: {{ note.id }}, UserID: {{note.user_id}}, Added: {{ note.created_at }}</small>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No notes yet. Add one!</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        <hr>
+        <p><small><em>This app demonstrates various scaling techniques. Check console logs for more
+                    details.</em></small></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const response = await fetch('/login', { method: 'POST', body: formData });
+                    const result = await response.json();
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        document.getElementById('loginError').textContent = result.error || 'Login failed.';
+                    }
+                });
+            }
+
+            const addNoteForm = document.getElementById('addNoteForm');
+            if (addNoteForm) {
+                addNoteForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const response = await fetch('/add_note', { method: 'POST', body: formData });
+                    const result = await response.json();
+                    if (response.ok) {
+                        window.location.reload(); // Simple reload to show new note
+                    } else {
+                        document.getElementById('noteError').textContent = result.error || 'Failed to add note.';
+                    }
+                });
+            }
+
+            const logoutForm = document.getElementById('logoutForm');
+            if (logoutForm) {
+                logoutForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const response = await fetch('/logout', { method: 'POST' });
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Logout failed.');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

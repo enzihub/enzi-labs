@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>enzi/labs: six runnable engineering labs</title>
+<meta name="description" content="Six small engineering labs you can run on your own machine: scaling, rate limiting, a distributed key-value store, a URL shortener, a Python code mapper and a note trainer.">
+<meta property="og:title" content="enzi/labs">
+<meta property="og:description" content="Six runnable engineering labs by Enzi Studio.">
+<meta property="og:image" content="https://enzihub.github.io/enzi-labs/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://enzihub.github.io/enzi-labs/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230c0f14'/%3E%3Cpath d='M19 6 13 26' stroke='%236ee7b7' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:Geist;src:url(assets/fonts/Geist-Variable.woff2) format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:GeistMono;src:url(assets/fonts/GeistMono-Variable.woff2) format('woff2');font-weight:100 900;font-display:swap}
+:root{--ink:#0c0f14;--ink2:#131821;--ink3:#0f131a;--line:#232a37;--fg:#e8ebf1;--mut:#9aa3b5;--mint:#6ee7b7;--amber:#fbbf24;--coral:#fb7185;--sky:#7dd3fc}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{margin:0;background:var(--ink);color:var(--fg);font:400 17px/1.6 Geist,system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.mono{font-family:GeistMono,ui-monospace,monospace}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:44px 44px;opacity:.28;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000,transparent 75%)}
+.glow{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:-1}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+.logo{font:700 20px Geist;letter-spacing:-.03em;text-decoration:none}
+.logo span{color:var(--mint)}
+nav .links{display:flex;gap:22px;font:500 14px GeistMono}
+nav .links a{color:var(--mut);text-decoration:none}
+nav .links a:hover,nav .links a:focus-visible{color:var(--fg)}
+
+header.hero{position:relative;padding:64px 0 40px}
+.glows{position:absolute;inset:-120px -24px auto -24px;height:760px;overflow:hidden;pointer-events:none;z-index:-1}
+.kicker{font:500 13px GeistMono;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
+h1{font:700 clamp(48px,9vw,104px)/.95 Geist;letter-spacing:-.05em;margin:18px 0 22px}
+h1 span{color:var(--mint)}
+.lede{font-size:clamp(18px,2.3vw,22px);color:#c3c9d6;max-width:640px;margin:0}
+.typed{margin-top:28px;font:500 15px GeistMono;color:var(--mut);min-height:24px}
+.typed b{color:var(--fg);font-weight:500}
+.caret{display:inline-block;width:9px;height:18px;background:var(--mint);vertical-align:-3px;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;font:600 15px Geist;text-decoration:none;border:1px solid var(--line);background:var(--ink2);min-height:44px}
+.btn.primary{background:var(--mint);color:#06281c;border-color:var(--mint);box-shadow:0 0 0 0 rgba(110,231,183,.0);transition:box-shadow .3s}
+.btn.primary:hover,.btn.primary:focus-visible{box-shadow:0 0 34px 2px rgba(110,231,183,.35)}
+.btn:hover{border-color:#3a4456}
+
+.demo{margin:46px 0 0;border-radius:18px;border:1px solid var(--line);overflow:hidden;background:#fff;box-shadow:0 40px 80px -30px rgba(0,0,0,.8),0 0 80px -10px rgba(110,231,183,.15)}
+.demo img{display:block;width:100%;height:auto}
+
+section{padding:84px 0 0}
+h2{font:700 clamp(30px,4.4vw,44px)/1.08 Geist;letter-spacing:-.03em;margin:12px 0 14px}
+.sub{color:var(--mut);max-width:640px;margin:0}
+
+.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:38px}
+.lab{position:relative;border:1px solid var(--line);border-radius:18px;background:var(--ink2);overflow:hidden;display:flex;flex-direction:column;transition:border-color .3s,transform .3s}
+.lab:hover{border-color:#36506a;transform:translateY(-2px)}
+.lab::before{content:"";position:absolute;inset:-1px;border-radius:18px;pointer-events:none;background:radial-gradient(400px 200px at var(--mx,50%) var(--my,0%),rgba(110,231,183,.12),transparent 60%);opacity:0;transition:opacity .3s}
+.lab:hover::before{opacity:1}
+.shot{aspect-ratio:16/10;overflow:hidden;border-bottom:1px solid var(--line);background:#fff}
+.shot.dark{background:#11141b;display:flex;align-items:center;justify-content:center;padding:12px}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
+.shot.dark img{object-fit:contain;object-position:center}
+.shot.contain img{object-fit:contain;object-position:center}
+.body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.lab h3{margin:0;font:650 21px Geist;letter-spacing:-.02em;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.lab h3 a{text-decoration:none}
+.lab h3 a:hover{color:var(--mint)}
+.lab h3 small{font:500 12px GeistMono;color:var(--mut)}
+.lab p{margin:0;color:#bcc3d1;font-size:15.5px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font:500 12px GeistMono;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:#c9cfdb;background:var(--ink3)}
+.run{margin-top:auto;font:500 13px GeistMono;color:var(--fg);background:var(--ink3);border:1px solid var(--line);border-radius:10px;padding:9px 12px;overflow-wrap:anywhere}
+.run::before{content:"$ ";color:var(--mint)}
+
+.how{margin-top:34px;border-radius:18px;overflow:hidden}
+.how img{width:100%;height:auto;display:block}
+
+.note{margin-top:30px;border:1px solid var(--line);border-radius:16px;padding:20px 22px;background:var(--ink2);color:#bcc3d1;font-size:15.5px}
+.note b{color:var(--fg)}
+
+footer{margin:90px 0 0;padding:28px 0 46px;border-top:1px solid var(--line);color:var(--mut);font-size:14.5px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px}
+footer a{color:var(--fg)}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+
+@media (max-width:760px){
+  .gallery{grid-template-columns:minmax(0,1fr)}
+  nav .links{gap:14px;font-size:13px}
+  nav .links .hide-s{display:none}
+  header.hero{padding-top:36px}
+  section{padding-top:64px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .caret{animation:none}
+  .lab,.btn{transition:none}
+  .lab:hover{transform:none}
+}
+:focus-visible{outline:2px solid var(--mint);outline-offset:3px;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrap">
+  <nav>
+    <a class="logo" href="#top">enzi<span>/</span>labs</a>
+    <div class="links">
+      <a href="#labs">Labs</a>
+      <a href="#how" class="hide-s">How it works</a>
+      <a href="https://github.com/enzihub/enzi-labs">GitHub</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="glows" aria-hidden="true"><div class="glow" style="width:520px;height:380px;left:-160px;top:40px;background:rgba(16,185,129,.35)"></div><div class="glow" style="width:520px;height:380px;right:-200px;top:320px;background:rgba(14,165,233,.18)"></div></div>
+    <div class="kicker">Enzi Studio · open source</div>
+    <h1>enzi<span>/</span>labs</h1>
+    <p class="lede">Six small engineering labs you can run on your own machine. Four take on classic system design problems, two are handy little tools.</p>
+    <div class="typed mono" aria-live="off"><span aria-hidden="true">$ </span><b id="typed">./demo.sh</b><span class="caret" aria-hidden="true"></span></div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/enzihub/enzi-labs">View on GitHub</a>
+      <a class="btn" href="#labs">Browse the labs</a>
+    </div>
+    <div class="demo reveal">
+      <img src="assets/demo.gif" width="820" height="525" alt="Real recording: the rate limiter returning 429s, the key-value store reaching quorum, and Note Trainer scoring answers">
+    </div>
+  </header>
+
+  <section id="labs">
+    <div class="kicker reveal">The gallery</div>
+    <h2 class="reveal">One idea per folder</h2>
+    <p class="sub reveal">Every screenshot below is the real app running locally, with made-up demo data.</p>
+
+    <div class="gallery">
+      <article class="lab reveal">
+        <div class="shot dark"><img src="assets/rate-limiter-429.png" alt="Terminal: ten 200 OK responses, four 429 Too Many Requests, then five 200 OK after a refill" loading="lazy"></div>
+        <div class="body">
+          <h3><a href="https://github.com/enzihub/enzi-labs/tree/main/rate-limiter">Rate limiter</a><small>rate-limiter/</small></h3>
+          <p>Token bucket, leaking bucket, fixed window and sliding log behind one FastAPI middleware. State lives in Redis, so every instance shares the same limit and a burst gets a 429 with Retry-After.</p>
+          <div class="tags"><span class="tag">fastapi</span><span class="tag">redis</span><span class="tag">429</span></div>
+          <div class="run">./demo.sh</div>
+        </div>
+      </article>
+
+      <article class="lab reveal">
+        <div class="shot"><img src="assets/kv-store.png" alt="Key-value store simulator: four nodes, the hash ring and a quorum read" loading="lazy"></div>
+        <div class="body">
+          <h3><a href="https://github.com/enzihub/enzi-labs/tree/main/kv-store">Distributed key-value store</a><small>kv-store/</small></h3>
+          <p>Consistent hashing with virtual nodes, three replicas per key and N/W/R quorums. Take a node down by hand and watch reads and writes move to the next healthy one.</p>
+          <div class="tags"><span class="tag">hash ring</span><span class="tag">quorum</span><span class="tag">fastapi</span></div>
+          <div class="run">uvicorn main:app</div>
+        </div>
+      </article>
+
+      <article class="lab reveal">
+        <div class="shot"><img src="assets/scaling.png" alt="Notes app showing which web node served the page and that the read came from the cache" loading="lazy"></div>
+        <div class="body">
+          <h3><a href="https://github.com/enzihub/enzi-labs/tree/main/scaling">Scaling a web app</a><small>scaling/</small></h3>
+          <p>A notes app on three stateless Flask nodes behind a round-robin balancer, with sessions and a read-through cache in Redis, sharding by user id and Celery jobs. One compose file runs it all.</p>
+          <div class="tags"><span class="tag">flask</span><span class="tag">postgres</span><span class="tag">redis</span><span class="tag">celery</span></div>
+          <div class="run">docker compose up</div>
+        </div>
+      </article>
+
+      <article class="lab reveal">
+        <div class="shot contain" style="background:#1b2433"><img src="assets/url-card.png" alt="TinyLink turning a long example.com link into a short code" loading="lazy"></div>
+        <div class="body">
+          <h3><a href="https://github.com/enzihub/enzi-labs/tree/main/url-shortener">URL shortener</a><small>url-shortener/</small></h3>
+          <p>Each new link takes the next id, encoded in base62 as the short code. One POST creates it, one route redirects, and the same URL always gets the same code.</p>
+          <div class="tags"><span class="tag">next.js</span><span class="tag">typescript</span><span class="tag">base62</span></div>
+          <div class="run">npm run dev</div>
+        </div>
+      </article>
+
+      <article class="lab reveal">
+        <div class="shot dark"><img src="assets/kryptonite-report.png" alt="Kryptonite report: imports, env vars, functions, classes and routes of the sample project" loading="lazy"></div>
+        <div class="body">
+          <h3><a href="https://github.com/enzihub/enzi-labs/tree/main/kryptonite">Kryptonite</a><small>kryptonite/</small></h3>
+          <p>Point it at a Python folder and it writes a colour-coded map of the tree, imports, env vars, functions, classes, routes and main block. It ships with a tiny sample project to try.</p>
+          <div class="tags"><span class="tag">python</span><span class="tag">code map</span></div>
+          <div class="run">python kryptonite.py sample/pastry_shop</div>
+        </div>
+      </article>
+
+      <article class="lab reveal">
+        <div class="shot contain"><img src="assets/note-card.png" alt="Note Trainer: treble clef drill with hints on and a score of 6 out of 6" loading="lazy"></div>
+        <div class="body">
+          <h3><a href="https://github.com/enzihub/enzi-labs/tree/main/note-trainer">Note Trainer</a><small>note-trainer/</small></h3>
+          <p>Learn to read treble and bass clef: a note appears, you press the piano key (or 1-5, W, E). Hit 50 and it moves you to the other clef. There are simple songs to sight-read too.</p>
+          <div class="tags"><span class="tag">next.js</span><span class="tag">vexflow</span><span class="tag">music</span></div>
+          <div class="run">npm run dev</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="kicker reveal">How it works</div>
+    <h2 class="reveal">Small enough to read in one sitting</h2>
+    <p class="sub reveal">Each lab has its own dependencies and README. There are no shared services and no accounts or API keys.</p>
+    <div class="how reveal"><img src="assets/how.png" alt="One diagram per lab showing how requests and data move through it" loading="lazy"></div>
+    <div class="note reveal"><b>About the inspiration.</b> The system design labs were inspired by the ByteByteGo system design course. This project is independent: it is not affiliated with or endorsed by ByteByteGo and contains no course text or diagrams.</div>
+  </section>
+
+  <footer>
+    <div>Built by <b>Enzi Studio</b> in 2025, shared as-is. MIT licence.</div>
+    <div><a href="https://github.com/enzihub/enzi-labs">github.com/enzihub/enzi-labs</a></div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var els = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, {rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){ io.observe(e); });
+  }
+  document.querySelectorAll('.lab').forEach(function(card){
+    card.addEventListener('pointermove', function(ev){
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (ev.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (ev.clientY - r.top) + 'px');
+    });
+  });
+  if (reduce) return;
+  var cmds = ['./demo.sh', 'docker compose up', 'uvicorn main:app', 'npm run dev', 'python kryptonite.py sample/pastry_shop'];
+  var el = document.getElementById('typed'), i = 0, j = cmds[0].length, del = true;
+  function tick(){
+    var c = cmds[i];
+    if (del) { j--; el.textContent = c.slice(0, j); if (j <= 0) { del = false; i = (i + 1) % cmds.length; } setTimeout(tick, 35); }
+    else { j++; el.textContent = cmds[i].slice(0, j); if (j >= cmds[i].length) { del = true; setTimeout(tick, 1800); } else setTimeout(tick, 60); }
+  }
+  setTimeout(tick, 2000);
+})();
+</script>
+</body>
+</html>

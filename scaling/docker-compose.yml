@@ -1,0 +1,96 @@
+# Everything runs locally: Postgres, Redis, 3 Flask web nodes, a Celery worker
+# and a tiny round-robin load balancer on http://localhost:8000
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-notes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notes}
+      POSTGRES_DB: ${POSTGRES_DB:-notes}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-notes}"]
+      interval: 2s
+      retries: 20
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+  web1: &web
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "5001:5000"
+    environment: &webenv
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: ${DATABASE_URL:-}
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-notes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notes}
+      POSTGRES_DB: ${POSTGRES_DB:-notes}
+      SECRET_KEY: ${SECRET_KEY:-}
+      DATACENTER_ID: dc-1
+      APP_ENV: development
+      EXPOSED_HOST_PORT: "5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  web2:
+    <<: *web
+    ports:
+      - "5002:5000"
+    environment:
+      <<: *webenv
+      DATACENTER_ID: dc-2
+      EXPOSED_HOST_PORT: "5002"
+
+  web3:
+    <<: *web
+    ports:
+      - "5003:5000"
+    environment:
+      <<: *webenv
+      DATACENTER_ID: dc-3
+      EXPOSED_HOST_PORT: "5003"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: ${DATABASE_URL:-}
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-notes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notes}
+      POSTGRES_DB: ${POSTGRES_DB:-notes}
+      APP_ENV: development
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  load_balancer:
+    image: python:3.12-slim
+    command: sh -c "pip install -q requests && python simple_load_balancer.py"
+    working_dir: /usr/src/app
+    volumes:
+      - ./simple_load_balancer.py:/usr/src/app/simple_load_balancer.py:ro
+    ports:
+      - "${LB_PORT:-8000}:8000"
+    depends_on:
+      - web1
+      - web2
+      - web3
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  redis_data:

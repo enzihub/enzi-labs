@@ -1,0 +1,6 @@
+Flask
+redis
+celery[redis]
+requests
+gunicorn
+psycopg2-binary

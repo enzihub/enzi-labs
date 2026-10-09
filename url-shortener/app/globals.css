@@ -1,0 +1,10 @@
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add other global styles or overrides here */
+body {
+  /* Example to ensure dark mode if you like */
+  /* @apply bg-slate-900 text-slate-100; */
+}
