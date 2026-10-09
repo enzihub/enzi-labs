@@ -6,7 +6,7 @@
   <a href="#the-labs">The labs</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#how-it-works">How it works</a> ·
-  <a href="https://enzihub.github.io/enzi-labs/">Gallery site</a> ·
+  <a href="docs/index.html">Gallery page</a> ·
   <a href="#credits">Credits</a>
 </p>
 
